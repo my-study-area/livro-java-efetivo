@@ -101,3 +101,42 @@ System.out.println(p.end()); //Thu Feb 11 21:48:38 BRT 2021
 end.setYear(78);
 System.out.println(p.end()); //Thu Feb 11 21:48:38 BRT 2021
 ```
+- não use o método clone para fazer uma cópia defensiva de um parâmetro cujo tipo possa ser subclasseado por terceiros não confiáveis
+
+```java
+class MaliciousDate extends Date {
+    private final List<MaliciousDate> dates;
+    public MaliciousDate(List<MaliciousDate> dates) {
+        this.dates = dates;
+    }
+    @Override public MaliciousDate clone() {
+        MaliciousDate other = (MaliciousDate) super.clone(); //Ou new MalicousDate
+        synchronized (dates) {
+            dates.add(other);
+        }
+        return other; //Ou returna this;
+    }
+}
+
+//RUIM
+public Period(Date start, Date end) {
+    //Falha na cópia defensiva.
+    start = (Date)start.clone();
+    end   = (Date)end  .clone();
+
+    if (start.compareTo(end) > 0)
+        throw new IllegalArgumentExcpetion();
+    this.start = start;
+    this.end = end;
+}
+
+//Exemplo de ataque
+List<MaliciousDate> dates = new ArrayList<>();
+Date start = new MaliciousDate(dates);
+Date end = new MaliciousDate(dates);
+Period p = new Period(start, end);
+System.out.println(p.end()); //Fri Feb 12 14:23:59 BRT 2021
+dates.get(1).setYear(78); //modifica o internals do objeto p
+System.out.println(p.end()); //Sun Feb 12 14:23:59 BRT 1978
+```
+Obs: _Exemplo de código encontrado no [stackoverflow](https://stackoverflow.com/a/21901867/6415045)_
