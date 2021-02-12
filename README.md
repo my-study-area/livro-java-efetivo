@@ -34,3 +34,70 @@ Objects.requireNonNull(obj, "Descrição da exception");
 
 - uma exceção da verificação explícita dos parâmetos é o processo de realização de calculos que ocorre de forma implícita. Como no caso da ordenação de uma lista de objetos, como o `Collections.sort(list)`, que caso, não sejam comparáveis lançam `ClassCastException`.
  
+**Item 50: Faça cópias defensivas quando necessário**
+- programe defensivamente, partindo do princípio que os clientes de sua classe farão o melhor para destruir as invariantes dela.
+
+- é fundamental fazer uma cópia defensiva de cada parâmetro `mutável` para seu contrutor
+
+```java
+//RUIM
+public final class Period {
+    private final Date start;
+    private final Date end;
+
+    public Period(Date start, Date end) {
+        if (start.compareTo(end) > 0)
+            throw new IllegalArgumentExcpetion();
+        this.start = start;
+        this.end = end;
+    }
+
+    public Date start() {
+        return start;
+    }
+
+    public Date end() {
+        return end;
+    }
+}
+
+// Exemplo de ataque:
+Date start = new Date();
+Date end = new Date();
+Period p = new Period(start, end);
+System.out.println(p.end()); //Thu Feb 11 21:39:29 BRT 2021
+end.setYear(78);
+System.out.println(p.end()); //Sat Feb 11 21:39:29 BRT 1978
+```
+```java
+//BOM
+public final class Period {
+    private final Date start;
+    private final Date end;
+
+    public Period(Date start, Date end) {
+        //cópia defensiva
+        this.start = new Date(start.getTime());
+        this.end = new Date(end.getTime());
+
+        if (start.compareTo(end) > 0)
+            throw new IllegalArgumentExcpetion();
+    }
+
+    public Date start() {
+        return start;
+    }
+
+    public Date end() {
+        return end;
+    }
+}
+
+// Tentativa de ataque sem sucesso
+Date start = new Date();
+Date end = new Date();
+Period p = new Period(start, end);
+System.out.println(p.end()); //Thu Feb 11 21:48:38 BRT 2021
+end.setYear(78);
+System.out.println(p.end()); //Thu Feb 11 21:48:38 BRT 2021
+```
