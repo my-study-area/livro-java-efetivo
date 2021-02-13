@@ -153,3 +153,71 @@ dates.get(1).setYear(78); //modifica o internals do objeto p
 System.out.println(p.end()); //Sun Feb 12 14:23:59 BRT 1978
 ```
 Obs: _Exemplo de código encontrado no [stackoverflow](https://stackoverflow.com/a/21901867/6415045)_
+
+- retorne cópias defensivas dos campos internos mutáveis
+```java
+//RUIM
+public class Period {
+    private final Date start;
+    private final Date end;
+
+    public Period(Date start, Date end) {
+        this.start = new Date(start.getTime());
+        this.end = new Date(end.getTime());
+
+        if (start.compareTo(end) > 0)
+            throw new IllegalArgumentException();
+    }
+
+    public Date start() {
+        return start;
+    }
+
+    public Date end() {
+        return end;
+    }
+}
+
+//Exemplo de ataque
+Date start = new Date();
+Date end = new Date();
+Period p = new Period(start, end);
+System.out.println(p.end()); //Sat Feb 13 11:07:02 BRT 2021
+p.end().setYear(78);
+System.out.println(p.end()); //Mon Feb 13 11:07:02 BRT 1978
+```
+```java
+//BOM
+public class Period {
+    private final Date start;
+    private final Date end;
+
+    public Period(Date start, Date end) {
+        this.start = new Date(start.getTime());
+        this.end = new Date(end.getTime());
+
+        if (start.compareTo(end) > 0)
+            throw new IllegalArgumentException();
+    }
+
+    //cópia defensiva do interno start
+    //retorna uma nova referência sem relação ao valores internos
+    public Date start() {
+        return new Date(start.getTime());
+    }
+
+    //cópia defensiva do interno end
+    //retorna uma nova referência sem relação ao valores internos
+    public Date end() {
+    	return new Date(end.getTime());
+    }
+}
+
+//Tentativa de ataque
+Date start = new Date();
+Date end = new Date();
+Period p = new Period(start, end);
+System.out.println(p.end()); //Sat Feb 13 11:12:37 BRT 2021
+p.end().setYear(78);
+System.out.println(p.end()); //Sat Feb 13 11:12:37 BRT 2021
+```
