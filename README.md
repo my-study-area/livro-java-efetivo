@@ -119,15 +119,28 @@ class MaliciousDate extends Date {
 }
 
 //RUIM
-public Period(Date start, Date end) {
-    //Falha na cópia defensiva.
-    start = (Date)start.clone();
-    end   = (Date)end  .clone();
+public final class Period {
+    private final Date start;
+    private final Date end;
 
-    if (start.compareTo(end) > 0)
-        throw new IllegalArgumentExcpetion();
-    this.start = start;
-    this.end = end;
+    public Period(Date start, Date end) {
+        //Falha na cópia defensiva.
+        start = (Date)start.clone();
+        end   = (Date)end  .clone();
+
+        if (start.compareTo(end) > 0)
+            throw new IllegalArgumentExcpetion();
+        this.start = start;
+        this.end = end;
+    }
+
+    public Date start() {
+        return start;
+    }
+
+    public Date end() {
+        return end;
+    }
 }
 
 //Exemplo de ataque
