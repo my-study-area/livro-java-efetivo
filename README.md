@@ -221,3 +221,19 @@ System.out.println(p.end()); //Sat Feb 13 11:12:37 BRT 2021
 p.end().setYear(78);
 System.out.println(p.end()); //Sat Feb 13 11:12:37 BRT 2021
 ```
+
+**Item 51: Projete as assinaturas de método com cuidado**
+- escolha os nomes de métodos com muito cuidado: os nomes de métodos devem obedecer as convenções padrão de nomenclatura, com nomes compreensíveis, evitando nomes longos e deve-se consultar as biliotecas da API do Java para orientação e tirar dúvidas.
+- evite listas longas de parâmetros: use no máximo quatro parâmetros ou menos e evite sequência longas de parâmetro do mesmo tipo. Existem 3 técnicas para reduzir o grupo de parâmetros:
+    1. dividir o métodos em métodos menores que recebem um subconjunto do grupo de parâmetros
+    2. criar classes auxiliares contendo o grupo de parâmetro
+    3. utilizar o padrão de projeto Builder
+- quanto aos tipo de parâmetros, dê preferência às interfaces em vez das classes
+- dê preferêmcia aos tipos enum de dois elementos em vez dos parâmetros boolean nos casos que o significado do boolean não seja claro no método.
+```java
+// RUIM
+Thermometer.newInstance(true);
+
+//BOM
+Thermometer.newInstance(Temperature.CELSIUS);
+```
